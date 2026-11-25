@@ -4,20 +4,20 @@ close all;
 %%P olynomial Expansion
 k = 0:1:100;
 s = sin(k/10);
-figure(1);plot(s);
+figure(1);plot(s); title('Original sine wave'); xlabel('Sample index'); ylabel('Amplitude');
 
 x = (-3: 3)';
 b0 = ones(7, 1);
 b1 = x;
 b2 = x.^2;
 figure(2);
-subplot(4, 1, 1);plot(b0, 'o');
-subplot(4, 1, 2);plot(b1, 'o');
-subplot(4, 1, 3);plot(b2, 'o');
+subplot(4, 1, 1);plot(b0, 'o'); title('Constant basis b_0'); xlabel('Window index'); ylabel('Basis value');
+subplot(4, 1, 2);plot(b1, 'o'); title('Linear basis b_1'); xlabel('Window index'); ylabel('Basis value');
+subplot(4, 1, 3);plot(b2, 'o'); title('Quadratic basis b_2'); xlabel('Window index'); ylabel('Basis value');
 
 a = exp(-x.^2/4);
 figure(2);
-subplot(4, 1, 4);plot(a, 'o');
+subplot(4, 1, 4);plot(a, 'o'); title('Gaussian applicability'); xlabel('Window index'); ylabel('Weight');
 
 f0 = b0.*a; f0 = f0(end:-1:1);
 f1 = b1.*a; f1 = f1(end:-1:1);
@@ -40,9 +40,9 @@ Answer:  No, the basis is not orthonormal. The weighted dot product
 
 c = inv(G)*[h0;h1;h2];
 figure(4);
-subplot(3, 1, 1);plot(c(1,:));
-subplot(3, 1, 2);plot(c(2,:));
-subplot(3, 1, 3);plot(c(3,:));
+subplot(3, 1, 1);plot(c(1,:)); title('Local value'); xlabel('Sample index'); ylabel('c_0');
+subplot(3, 1, 2);plot(c(2,:)); title('Local slope'); xlabel('Sample index'); ylabel('c_1');
+subplot(3, 1, 3);plot(c(3,:)); title('Quadratic coefficient'); xlabel('Sample index'); ylabel('c_2');
 %{
 Q: The last three plots show the elements of the coordinate vector
 c. Are they as expected? Hint: polynomial expansion is related to a Taylor
@@ -65,9 +65,9 @@ figure(5);
 localsig = s(60-3:60+3);
 reconsig = (B*c(:,60))';
 diffsig = localsig - reconsig;
-subplot(3, 1, 1);plot(localsig);
-subplot(3, 1, 2);plot(reconsig);
-subplot(3, 1, 3);plot(diffsig);
+subplot(3, 1, 1);plot(localsig); title('Original local samples'); xlabel('Window index'); ylabel('Amplitude');
+subplot(3, 1, 2);plot(reconsig); title('Local quadratic reconstruction'); xlabel('Window index'); ylabel('Amplitude');
+subplot(3, 1, 3);plot(diffsig); title('Original minus reconstruction'); xlabel('Window index'); ylabel('Residual');
 %{
 Q: s the reconstructed signal very different or very similar to the
 local signal? Explain why.
@@ -81,7 +81,7 @@ Answer: The reconstructed signal is very similar to the local signal.
 %% Uncertain Data
 cert = double(rand(1,101)>0.2);
 scert = s.*cert;
-figure(6);plot(scert);
+figure(6);plot(scert); title('Sine wave with missing samples'); xlabel('Sample index'); ylabel('Amplitude');
 
 x = (-3: 3)';
 b0 = ones(7, 1);
@@ -114,18 +114,18 @@ G = B'*G0*B;
 
 c = inv(G)*[h0;h1;h2];
 figure(7);
-subplot(3, 1, 1);plot(c(1,:));
-subplot(3, 1, 2);plot(c(2,:));
-subplot(3, 1, 3);plot(c(3,:));
+subplot(3, 1, 1);plot(c(1,:)); title('Masked signal: local value'); xlabel('Sample index'); ylabel('c_0');
+subplot(3, 1, 2);plot(c(2,:)); title('Masked signal: local slope'); xlabel('Sample index'); ylabel('c_1');
+subplot(3, 1, 3);plot(c(3,:)); title('Masked signal: quadratic coefficient'); xlabel('Sample index'); ylabel('c_2');
 
 
 figure(8);
 localsig = scert(60-3:60+3);
 reconsig = (B*c(:,60))';
 diffsig = localsig - reconsig;
-subplot(3, 1, 1);plot(localsig);
-subplot(3, 1, 2);plot(reconsig);
-subplot(3, 1, 3);plot(diffsig);
+subplot(3, 1, 1);plot(localsig); title('Masked local samples'); xlabel('Window index'); ylabel('Amplitude');
+subplot(3, 1, 2);plot(reconsig); title('Reconstruction with fixed G'); xlabel('Window index'); ylabel('Amplitude');
+subplot(3, 1, 3);plot(diffsig); title('Masked samples minus reconstruction'); xlabel('Window index'); ylabel('Residual');
 %{
 Q: In what way do the results change? Explain why.
 Answer: The coefficient curves become less smooth, and the reconstructed
@@ -136,7 +136,7 @@ Answer: The coefficient curves become less smooth, and the reconstructed
 %}
 
 h0 = conv(scert, f0, 'same');
-h1 = conv(scert, h1, 'same');
+h1 = conv(scert, f1, 'same');
 
 G11 = conv(cert, f0, 'same');
 G12 = conv(cert, f1, 'same');
@@ -145,7 +145,7 @@ G22 = conv(cert, f2, 'same');
 detG = G11.*G22-G12.^2;
 c0 = (G22.*h0-G12.*h1)./detG;
 c1 = (-G12.*h0+G11.*h1)./detG; figure(9);
-subplot(2, 1, 1);plot(c0);subplot(2, 1, 2);plot(c1);
+subplot(2, 1, 1);plot(c0); title('Certainty-weighted local value'); xlabel('Sample index'); ylabel('c_0'); subplot(2, 1, 2);plot(c1); title('Certainty-weighted local slope'); xlabel('Sample index'); ylabel('c_1');
 %{
 Q:How do you interpret the computations that are made for c0
 and c1?
@@ -188,18 +188,18 @@ Answer: For this sine wave and seven-sample window, about 30% random
 
 %% Normalised averaging of images
 im = double(imread('Scalespace0.png'));
-figure(10);colormap(gray);imagesc(im);
+figure(10);colormap(gray);imagesc(im); title('Original grayscale image'); xlabel('Image column (pixels)'); ylabel('Image row (pixels)');
 
 cert = double(rand(size(im)) > 0.6); imcert = im.*cert;
-figure(11);colormap(gray); imagesc(imcert);
+figure(11);colormap(gray);imagesc(imcert); title('Image with missing pixels'); xlabel('Image column (pixels)'); ylabel('Image row (pixels)');
 
 x = ones(7, 1)*(-3:3);
 y = x';
-a = exp(-(x.^2+y)/4);
-figure(12);mesh(a);
+a = exp(-(x.^2+y.^2)/4);
+figure(12);mesh(a); title('Applicability kernel'); xlabel('Kernel column'); ylabel('Kernel row');
 
 imlp = conv2(imcert, a, 'same');
-figure(13);colormap(gray);imagesc(imlp);
+figure(13);colormap(gray);imagesc(imlp); title('Unnormalised weighted image'); xlabel('Image column (pixels)'); ylabel('Image row (pixels)');
 %{
 Q: Did this solve the problem of missing pixels? Explain why.
 Answer: Only partly. Low-pass filtering can give a missing pixel a
@@ -234,7 +234,7 @@ for k = 1:9
     subplot(3,3,k);
     img = imagesc(c, [min(im(:)) max(im(:))]);
     set(img, 'AlphaData', ~isnan(c));
-    axis image off;
+    axis image; axis on; xlabel('Image column (pixels)'); ylabel('Image row (pixels)');
     set(gca, 'Color', 'k');
     title(sprintf('%g%% missing, width %g\n%d x %d, %d NaNs', ...
         missing(k), width(k), size(a,1), size(a,2), nnz(isnan(c))));
